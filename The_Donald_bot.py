@@ -2,36 +2,35 @@
 
 import time
 import praw
-from pprint import pprint
+
 
 r = praw.Reddit('Trump name dropz')
 
 r.login('CheckOutThesePythons', 'M%f&nBnK1BmL', disable_warning=True)
 already_done = [] #Ignore
-nicks = ['Trump', 'Donald', 'The Donald']
-mentions = 0
-
-
+current_date = time.strftime("%d\%m\%Y")
 
 while True:
-    Trump_file = open('Trump_comments.txt', 'a')
-    Comments_read = open('Comments_read.txt', 'w+')
-
+    comments_file_name = "trump_comments " + current_date + ".txt"
+    comments_read_file = "trump_comments_read " + current_date + ".txt"
+    trump_file = open(comments_file_name, "a+")
+    comments_read = open(comments_read_file, "a+")
     subreddit = r.get_subreddit('The_Donald')
     for submission in subreddit.get_hot(limit=25):
         submission.replace_more_comments(limit=16, threshold=1)
         flat_comments = praw.helpers.flatten_tree(submission.comments)
         for comment in flat_comments:
-                if comment.id not in Comments_read.readlines() and 'Trump' in comment.body:
-                    mentions += 1
-                    Trump_file.write(comment.body + '\n')
+                if comment.id not in comments_read.readlines():
+                    trump_file.write(comment.body + '\n' + 'END OF COMMENT' + '\n')
                     print(comment.id)
-                    Comments_read.write(comment.id + '\n')
-
-
-    print("The above are the flattened comments for the top 25 submissions of The_Donald for: " + str(time.clock()))
-    Trump_file.close()
-    Comments_read.close()
+                    comments_read.write(comment.id + '\n')
+    trump_file.close()
+    comments_read.close()
     time.sleep(600)
+    get_date = time.strftime("%d\%m\%Y")
+    if get_date == current_date:
+        pass
+    else:
+        current_date = get_date
 
 
